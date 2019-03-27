@@ -10,6 +10,7 @@ import com.wurmonline.server.kingdom.Kingdom;
 import com.wurmonline.server.players.FakePlayerInfo;
 import com.wurmonline.server.players.Player;
 import com.wurmonline.server.villages.*;
+import com.wurmonline.server.zones.Zones;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.stubbing.Answer;
@@ -19,8 +20,6 @@ import com.wurmonline.server.items.ItemsPackageFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -35,6 +34,35 @@ public class WurmObjectsFactory {
     private static WurmObjectsFactory current;
     private static int villageIds = 1;
 
+    public enum AnimalTraitColours {
+        brown(15),
+        gold(16),
+        black(17),
+        white(18),
+        ebony_black(23),
+        piebald_pinto(24),
+        blood_bay(25),
+        skewbald_pinto(30),
+        gold_buckskin(31),
+        black_silver(32),
+        appaloosa(33),
+        chestnut(34);
+
+        private final int bit;
+
+        AnimalTraitColours(int bit) {
+            this.bit = bit;
+        }
+
+        public int getNumber() {
+            return bit;
+        }
+
+        public String getName() {
+            return name().replace("_", " ");
+        }
+    }
+
     static {
         try {
             ItemTemplateCreator.initialiseItemTemplates();
@@ -46,7 +74,7 @@ public class WurmObjectsFactory {
     }
 
     public WurmObjectsFactory() throws Exception {
-
+        Zones.resetStatic();
         Economy economy = mock(Economy.class);
         Field econ = Economy.class.getDeclaredField("economy");
         econ.setAccessible(true);
@@ -144,8 +172,12 @@ public class WurmObjectsFactory {
     }
 
     public Creature createNewCreature() {
+        return createNewCreature(CreatureTemplateIds.HORSE_CID);
+    }
+
+    public Creature createNewCreature(int creatureTemplateId) {
         try {
-            Creature creature = Creature.doNew(CreatureTemplateIds.HUMAN_CID, 512, 512, 1, 1, "Creature" + (creatures.size() + 1), (byte)0);
+            Creature creature = Creature.doNew(creatureTemplateId, 512, 512, 1, 1, "Creature" + (creatures.size() + 1), (byte)0);
             creatures.put(creature.getWurmId(), creature);
             creature.createPossessions();
             attachFakeCommunicator(creature);

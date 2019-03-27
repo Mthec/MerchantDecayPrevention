@@ -9,6 +9,7 @@ public class Servers {
     private static boolean isPVPServer = false;
     private static boolean isEpicServer = false;
     private static boolean isHomeServer = true;
+    private static boolean isLoginServer = false;
 
     static {
         localServer = mock(ServerEntry.class);
@@ -27,6 +28,7 @@ public class Servers {
     public static boolean isThisAEpicServer() {
         return isEpicServer;
     }
+    public static boolean isThisLoginServer() { return isLoginServer; }
 
     public static int getLocalServerId() {
         return 1;

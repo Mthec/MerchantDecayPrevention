@@ -129,6 +129,15 @@ public class FakeCommunicator extends Communicator {
     @Override
     public void sendIsEmpty(long window, long wurmId) {}
 
+    @Override
+    public void sendPlonk(short plonkId) {}
+
+    @Override
+    public void sendAddStatusEffect(SpellEffectsEnum effect, int duration) {}
+
+    @Override
+    public void sendAddSpellEffect(SpellEffectsEnum effect, int duration, float power) {}
+
     public void clear() {
         lastBmlContent = empty;
         messages.clear();

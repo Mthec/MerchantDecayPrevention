@@ -100,7 +100,7 @@ public class FakeCreatureStatus extends CreatureStatus {
 
     @Override
     void setInheritance(long l, long l1, long l2) throws IOException {
-        throw new UnsupportedOperationException("Not yet implemented.");
+
     }
 
     @Override
