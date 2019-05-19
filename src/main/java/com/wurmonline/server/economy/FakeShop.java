@@ -125,6 +125,8 @@ public class FakeShop extends Shop {
     @Override
     public void addMoneyEarned(long var1) {
         System.out.println(var1 + " earned.");
+        moneyEarned += var1;
+        moneyEarnedLife += var1;
     }
 
     @Override
