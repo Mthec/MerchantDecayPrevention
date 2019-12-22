@@ -12,7 +12,6 @@ import static org.mockito.Mockito.mock;
 public class FakeShop extends Shop {
     public int merchantDataInt;
     public long merchantDataLong;
-    public long paidTax = 0;
 
     private FakeShop(long aWurmId, long aMoney) {
         super(aWurmId, aMoney);
@@ -142,8 +141,7 @@ public class FakeShop extends Shop {
 
     @Override
     public void addTax(long tax) {
-        // TODO - Test in usage.
-        paidTax += tax;
+        taxPaid += tax;
     }
 
     @Override
