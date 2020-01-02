@@ -379,6 +379,36 @@ public class Assert {
     }
 
     public static Matcher<String> contains(String other) {
-        return new Assert.Contains(other);
+        return new Contains(other);
+    }
+
+    public static class BMLContains extends TypeSafeMatcher<Creature> {
+
+        private String content;
+        private String lastBML;
+
+        private BMLContains(String content) {
+            this.content = content;
+        }
+
+        @Override
+        protected boolean matchesSafely(Creature creature) {
+            lastBML = WurmObjectsFactory.getCurrent().getCommunicator(creature).lastBmlContent;
+            return lastBML.contains(content);
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText(" BML to contain " + content);
+        }
+
+        @Override
+        public void describeMismatchSafely(Creature creature, Description description) {
+            description.appendText(content + " not found in " + lastBML);
+        }
+    }
+
+    public static Matcher<Creature> receivedBMLContaining(String content) {
+        return new BMLContains(content);
     }
 }

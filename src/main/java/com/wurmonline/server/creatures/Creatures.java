@@ -51,4 +51,8 @@ public class Creatures {
     public Collection<Creature> getAllCreatures() {
         return WurmObjectsFactory.getCurrent().getAllCreatures();
     }
+
+    public int getNumberOfCreatures() {
+        return WurmObjectsFactory.getCurrent().getAllCreatures().size();
+    }
 }
