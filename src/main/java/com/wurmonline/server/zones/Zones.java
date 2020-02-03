@@ -53,7 +53,12 @@ public class Zones {
     }
 
     public static Zone getZone(int tilex, int tiley, boolean surfaced) throws NoSuchZoneException {
-        Zone newZone = zones[tilex >> 6][tiley >> 6];
+        Zone newZone;
+        try {
+            newZone = zones[tilex >> 6][tiley >> 6];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new NoSuchZoneException("No such zone at " + tilex + " - " + tiley);
+        }
 
         if (newZone == null) {
             newZone = mock(Zone.class);
@@ -134,14 +139,22 @@ public class Zones {
         return 0f;
     }
 
-    public static VolaTile getTileOrNull(int tileX, int tileY, boolean surface) throws NoSuchZoneException {
-        return getZone(tileX, tileY, surface).getOrCreateTile(tileX, tileY);
+    public static VolaTile getTileOrNull(int tileX, int tileY, boolean surface) {
+        try {
+            return getZone(tileX, tileY, surface).getOrCreateTile(tileX, tileY);
+        } catch (NoSuchZoneException e) {
+            return null;
+        }
     }
 
-    public static VolaTile getTileOrNull(TilePos pos, boolean var1) throws NoSuchZoneException {
-        int tileX = pos.x;
-        int tileY = pos.y;
-        return getZone(tileX, tileY, true).getOrCreateTile(tileX, tileY);
+    public static VolaTile getTileOrNull(TilePos pos, boolean var1) {
+        try {
+            int tileX = pos.x;
+            int tileY = pos.y;
+            return getZone(tileX, tileY, true).getOrCreateTile(tileX, tileY);
+        } catch (NoSuchZoneException e) {
+            return null;
+        }
     }
 
     public static Zone[] getZonesCoveredBy(int startx, int starty, int var3, int var4, boolean var5) {
