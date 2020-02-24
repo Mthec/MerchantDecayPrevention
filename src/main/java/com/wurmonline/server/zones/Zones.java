@@ -113,8 +113,12 @@ public class Zones {
         return newZone;
     }
 
-    public static VolaTile getOrCreateTile(int tileX, int tileY, boolean surface) throws NoSuchZoneException {
-        return getZone(tileX, tileY, surface).getOrCreateTile(tileX, tileY);
+    public static VolaTile getOrCreateTile(int tileX, int tileY, boolean surface) {
+        try {
+            return getZone(tileX, tileY, surface).getOrCreateTile(tileX, tileY);
+        } catch (NoSuchZoneException e) {
+            return null;
+        }
     }
 
     public static VirtualZone createZone(Creature watcher, int startX, int startY, int centerX, int centerY, int size, boolean surface) {
