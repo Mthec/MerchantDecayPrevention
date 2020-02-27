@@ -33,6 +33,7 @@ public class ItemFactory {
         Item item = WurmObjectsFactory.getCurrent().createNewItem(templateId);
         item.setQualityLevel(ql);
         item.setMaterial(material);
+        item.setRarity(aRarity);
         return item;
     }
 
