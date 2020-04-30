@@ -155,7 +155,7 @@ public class Assert {
 
         @Override
         public void describeTo(Description description) {
-            description.appendText(" messages containing " + message);
+            description.appendText("A message containing " + message);
         }
 
         @Override
