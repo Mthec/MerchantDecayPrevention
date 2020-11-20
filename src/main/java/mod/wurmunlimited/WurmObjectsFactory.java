@@ -80,7 +80,17 @@ public class WurmObjectsFactory {
         econ.setAccessible(true);
         econ.set(null, economy);
         assert Economy.getEconomy() == economy;
-        when(economy.getShop(any(Creature.class))).thenAnswer(i -> shops.get((Creature)i.getArgument(0)));
+        when(economy.getShop(any(Creature.class))).thenAnswer(i -> {
+            FakeShop shop = shops.get((Creature)i.getArgument(0));
+
+            if (shop == null) {
+                shop = FakeShop.createFakeTraderShop(((Creature)i.getArgument(0)).getWurmId());
+                shops.put(i.getArgument(0), shop);
+                return shop;
+            }
+
+            return shop;
+        });
         shops.put(null, FakeShop.createFakeShop());
         when(economy.getKingsShop()).thenAnswer(i -> shops.get(null));
         doAnswer((Answer<Void>) i -> {
