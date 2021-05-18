@@ -1,29 +1,21 @@
 package com.wurmonline.server.zones;
 
 import com.wurmonline.math.TilePos;
-import com.wurmonline.server.Constants;
 import com.wurmonline.server.creatures.Creature;
-import com.wurmonline.server.items.Item;
 import com.wurmonline.server.villages.Village;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.annotation.Nullable;
-
-import java.io.IOException;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class Zones {
     private static final Logger logger = Logger.getLogger(Zones.class.getName());
-    public static Item marketStall = null;
-    public static Creature creature = null;
 
     public static int numberOfZones;
     public static int worldTileSizeX = 1024;
@@ -32,12 +24,38 @@ public class Zones {
     public static float worldMeterSizeY = (float)((worldTileSizeY - 1) * 4);
     private static Zone[][] zones;
     public static Map<VolaTile, Village> villages = new HashMap<>();
+    public static final Map<XY, VolaTile> tiles = new HashMap<>();
+
+    private static class XY {
+        private final int x;
+        private final int y;
+        private final Zone zone;
+
+        private XY(int x, int y, Zone zone) {
+            this.x = x;
+            this.y = y;
+            this.zone = zone;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y, zone);
+        }
+
+        public boolean equals(Object other) {
+            if (other instanceof XY) {
+                XY otherXY = (XY)other;
+                return otherXY.x == x && otherXY.y == y && otherXY.zone == zone;
+            }
+
+            return false;
+        }
+    }
 
     public static void resetStatic() {
-        marketStall = null;
-        creature = null;
         zones = new Zone[worldTileSizeX >> 6][worldTileSizeY >> 6];
         villages = new HashMap<>();
+        tiles.clear();
     }
 
     public static int safeTileX(int i) {
@@ -48,8 +66,30 @@ public class Zones {
         return 1;
     }
 
-    public static final float calculatePosZ(float posx, float posy, VolaTile tile, boolean isOnSurface, boolean floating, float currentPosZ, @Nullable Creature creature, long bridgeId) {
+    public static final float calculatePosZ(float posX, float posY, VolaTile tile, boolean isOnSurface, boolean floating, float currentPosZ, @Nullable Creature creature, long bridgeId) {
         return 1;
+    }
+
+    private static VolaTile getOrPut(int x, int y, Zone zone) {
+        XY xy = new XY(x, y, zone);
+        VolaTile tile = tiles.get(xy);
+        if (tile != null)
+            return tile;
+
+        tile = mock(VolaTile.class);
+        tiles.put(xy, tile);
+        return tile;
+    }
+
+    private static Zone createMockZone() {
+        Zone zone = mock(Zone.class);
+        when(zone.getTileOrNull(anyInt(), anyInt())).thenAnswer((Answer<VolaTile>)i -> tiles.get(new XY(i.getArgument(0), i.getArgument(1), zone)));
+        when(zone.getOrCreateTile(any(TilePos.class))).thenAnswer((Answer<VolaTile>)i -> {
+            TilePos tilePos = i.getArgument(0);
+            return getOrPut(tilePos.x, tilePos.y, zone);
+        });
+        when(zone.getOrCreateTile(anyInt(), anyInt())).thenAnswer((Answer<VolaTile>)i -> getOrPut(i.getArgument(0), i.getArgument(1), zone));
+        return zone;
     }
 
     public static Zone getZone(int tilex, int tiley, boolean surfaced) throws NoSuchZoneException {
@@ -61,54 +101,9 @@ public class Zones {
         }
 
         if (newZone == null) {
-            newZone = mock(Zone.class);
+            newZone = createMockZone();
             zones[tilex >> 6][tiley >> 6] = newZone;
-
-            VolaTile volaTile = mock(VolaTile.class);
-            when(newZone.getOrCreateTile(anyInt(), anyInt())).thenReturn(volaTile);
-            when(volaTile.getVillage()).thenAnswer((Answer<Village>)invocation -> villages.get(volaTile));
-            when(volaTile.getStructure()).thenReturn(null);
-            if (marketStall == null)
-                when(volaTile.getItems()).thenReturn(new Item[0]);
-            else
-                when(volaTile.getItems()).thenReturn(new Item[] {marketStall});
-            if (creature == null)
-                when(volaTile.getCreatures()).thenReturn(new Creature[0]);
-            else
-                when(volaTile.getCreatures()).thenReturn(new Creature[] {creature});
-
-            doAnswer((Answer<Void>)i -> {
-                villages.put(volaTile, i.getArgument(0));
-                return null;
-            }).when(newZone).addVillage(any());
         }
-
-//        ;new Zone(tilex, tilex, tiley, tiley, surfaced) {
-//            @Override
-//            void save() throws IOException {
-//
-//            }
-//
-//            @Override
-//            void load() throws IOException {
-//
-//            }
-//
-//            @Override
-//            void loadFences() throws IOException {
-//
-//            }
-//        };
-//        try {
-//            Field wurmid = Zone.class.getDeclaredMethod("getOrCreateTile", TilePos.class);
-//            wurmid.setAccessible(true);
-//            Field modifiers = Field.class.getDeclaredField("modifiers");
-//            modifiers.setAccessible(true);
-//            modifiers.setInt(wurmid, wurmid.getModifiers() & ~Modifier.FINAL);
-//            wurmid.set(newShop, wurmId);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
 
         return newZone;
     }
@@ -126,16 +121,17 @@ public class Zones {
     }
 
     public static Zone[] getZonesCoveredBy(VirtualZone zone) {
-        Set<Zone> zoneList = new HashSet<>();
-
-        try {
-            Zone zone2 = getZone(zone.getStartX(), zone.getStartY(), zone.isOnSurface());
-
-            zoneList.add(zone2);
-        } catch (NoSuchZoneException var5) {
+        final Set<Zone> zoneList = new HashSet<>();
+        for (int x = zone.getStartX() >> 6; x <= zone.getEndX() >> 6; ++x) {
+            for (int y = zone.getStartY() >> 6; y <= zone.getEndY() >> 6; ++y) {
+                try {
+                    final Zone zone2 = getZone(x << 6, y << 6, zone.isOnSurface());
+                    zoneList.add(zone2);
+                }
+                catch (NoSuchZoneException ignored) {}
+            }
         }
-
-        Zone[] toReturn = new Zone[zoneList.size()];
+        final Zone[] toReturn = new Zone[zoneList.size()];
         return zoneList.toArray(toReturn);
     }
 
@@ -161,17 +157,18 @@ public class Zones {
         }
     }
 
-    public static Zone[] getZonesCoveredBy(int startx, int starty, int var3, int var4, boolean var5) {
-        Set<Zone> zoneList = new HashSet<>();
-
-        try {
-            Zone zone2 = getZone(startx, starty, true);
-
-            zoneList.add(zone2);
-        } catch (NoSuchZoneException e) {
+    public static Zone[] getZonesCoveredBy(int startX, int startY, int endX, int endY, boolean surfaced) {
+        final Set<Zone> zoneList = new HashSet<>();
+        for (int x = startX >> 6; x <= endX >> 6; ++x) {
+            for (int y = startY >> 6; y <= endY >> 6; ++y) {
+                try {
+                    final Zone zone2 = getZone(x << 6, y << 6, surfaced);
+                    zoneList.add(zone2);
+                }
+                catch (NoSuchZoneException ignored) {}
+            }
         }
-
-        Zone[] toReturn = new Zone[zoneList.size()];
+        final Zone[] toReturn = new Zone[zoneList.size()];
         return zoneList.toArray(toReturn);
     }
 
@@ -185,5 +182,13 @@ public class Zones {
 
     public static boolean isGoodTileForSpawn(int var1, int var2, boolean var3) {
         return true;
+    }
+
+    public static void setKingdom(final int tilex, final int tiley, final int sizeX, final int sizeY, final byte kingdom) {
+
+    }
+
+    public static void addWarDomains() {
+
     }
 }

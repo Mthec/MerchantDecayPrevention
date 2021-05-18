@@ -5,8 +5,8 @@ import com.wurmonline.server.creatures.Creature;
 import java.io.IOException;
 
 public class DbCitizen extends Citizen {
-    DbCitizen(long aWurmId, String aName, VillageRole aRole, long aVotedate, long aVotedfor) {
-        super(aWurmId, aName, aRole, aVotedate, aVotedfor);
+    DbCitizen(long aWurmId, String aName, VillageRole aRole, long aVoteDate, long aVotedFor) {
+        super(aWurmId, aName, aRole, aVoteDate, aVotedFor);
     }
 
     @Override

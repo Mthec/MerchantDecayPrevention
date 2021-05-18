@@ -40,6 +40,10 @@ public class DbSkills extends Skills {
 
     @Override
     public void delete() throws Exception {
-        throw new UnsupportedOperationException("Not yet implemented");
+
+    }
+
+    static void saveSkillChances(byte[][] chances) {
+
     }
 }

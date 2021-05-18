@@ -8,8 +8,8 @@ import java.io.IOException;
 
 public class FakePlayerInfo extends PlayerInfo {
 
-    public FakePlayerInfo(String aname) {
-        super(aname);
+    public FakePlayerInfo(String name) {
+        super(name);
     }
 
     @Override
@@ -219,7 +219,7 @@ public class FakePlayerInfo extends PlayerInfo {
 
     @Override
     public void setMoney(long var1) throws IOException {
-
+        money = var1;
     }
 
     @Override

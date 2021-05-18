@@ -26,24 +26,7 @@ public class FakeShop extends Shop {
     }
 
     private static FakeShop createFakeShop(long wurmId, long ownerId) {
-        Objenesis ob = new ObjenesisStd();
-        FakeShop newShop = ob.newInstance(FakeShop.class);
-        try {
-            Field wurmid = Shop.class.getDeclaredField("wurmid");
-            wurmid.setAccessible(true);
-            Field modifiers = Field.class.getDeclaredField("modifiers");
-            modifiers.setAccessible(true);
-            modifiers.setInt(wurmid, wurmid.getModifiers() & ~Modifier.FINAL);
-            wurmid.set(newShop, wurmId);
-
-            Field localSupplyDemand = Shop.class.getDeclaredField("localSupplyDemand");
-            localSupplyDemand.setAccessible(true);
-            modifiers.setInt(localSupplyDemand, localSupplyDemand.getModifiers() & ~Modifier.FINAL);
-            localSupplyDemand.set(newShop, mock(LocalSupplyDemand.class));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        FakeShop newShop = createFakeTraderShop(wurmId);
         newShop.money = 0;
         newShop.ownerId = ownerId;
 
@@ -54,12 +37,12 @@ public class FakeShop extends Shop {
         Objenesis ob = new ObjenesisStd();
         FakeShop newShop = ob.newInstance(FakeShop.class);
         try {
-            Field wurmid = Shop.class.getDeclaredField("wurmid");
-            wurmid.setAccessible(true);
+            Field wurm_id = Shop.class.getDeclaredField("wurmid");
+            wurm_id.setAccessible(true);
             Field modifiers = Field.class.getDeclaredField("modifiers");
             modifiers.setAccessible(true);
-            modifiers.setInt(wurmid, wurmid.getModifiers() & ~Modifier.FINAL);
-            wurmid.set(newShop, wurmId);
+            modifiers.setInt(wurm_id, wurm_id.getModifiers() & ~Modifier.FINAL);
+            wurm_id.set(newShop, wurmId);
 
             Field localSupplyDemand = Shop.class.getDeclaredField("localSupplyDemand");
             localSupplyDemand.setAccessible(true);

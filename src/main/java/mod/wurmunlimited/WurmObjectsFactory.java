@@ -3,23 +3,29 @@ package mod.wurmunlimited;
 import com.wurmonline.math.TilePos;
 import com.wurmonline.mesh.MeshIO;
 import com.wurmonline.server.*;
+import com.wurmonline.server.banks.Bank;
+import com.wurmonline.server.banks.BankSlot;
+import com.wurmonline.server.banks.Banks;
 import com.wurmonline.server.creatures.*;
 import com.wurmonline.server.economy.*;
 import com.wurmonline.server.items.*;
-import com.wurmonline.server.kingdom.Kingdom;
 import com.wurmonline.server.players.FakePlayerInfo;
 import com.wurmonline.server.players.Player;
-import com.wurmonline.server.villages.*;
+import com.wurmonline.server.villages.NoSuchRoleException;
+import com.wurmonline.server.villages.Village;
+import com.wurmonline.server.villages.VillageStatus;
+import com.wurmonline.server.villages.Villages;
 import com.wurmonline.server.zones.Zones;
+import org.gotti.wurmunlimited.modloader.ReflectionUtil;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.stubbing.Answer;
-import com.wurmonline.server.creatures.FakeCommunicator;
-import com.wurmonline.server.creatures.FakeCreatureStatus;
-import com.wurmonline.server.items.ItemsPackageFactory;
+import org.objenesis.Objenesis;
+import org.objenesis.ObjenesisStd;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -28,11 +34,11 @@ import static org.mockito.Mockito.*;
 
 public class WurmObjectsFactory {
     protected Map<Long, Creature> creatures = new HashMap<>(10);
-    private Map<Creature, FakeCommunicator> communicators = new HashMap<>(10);
+    private final Map<Creature, FakeCommunicator> communicators = new HashMap<>(10);
     protected Map<Creature, FakeShop> shops = new HashMap<>(4);
-    private Map<Long, Item> items = new HashMap<>();
+    private final Map<Long, Item> items = new HashMap<>();
     private static WurmObjectsFactory current;
-    private static int villageIds = 1;
+    private static int villageIds = 0;
 
     public enum AnimalTraitColours {
         brown(15),
@@ -75,6 +81,7 @@ public class WurmObjectsFactory {
 
     public WurmObjectsFactory() throws Exception {
         Zones.resetStatic();
+        Arrays.stream(Villages.getVillages()).forEach(village -> village.disband("upkeep"));
         Economy economy = mock(Economy.class);
         Field econ = Economy.class.getDeclaredField("economy");
         econ.setAccessible(true);
@@ -156,6 +163,7 @@ public class WurmObjectsFactory {
                 return new ArrayList<>(shops.values());
             }
         });
+        ReflectionUtil.<Map<Long, Bank>>getPrivateField(null, Banks.class.getDeclaredField("banks")).clear();
 
         Server.caveMesh = mock(MeshIO.class);
         Server.surfaceMesh = mock(MeshIO.class);
@@ -189,6 +197,7 @@ public class WurmObjectsFactory {
         try {
             Creature creature = Creature.doNew(creatureTemplateId, 512, 512, 1, 1, "Creature" + (creatures.size() + 1), (byte)0);
             creatures.put(creature.getWurmId(), creature);
+            creature.currentTile = Zones.getOrCreateTile(512, 512, true);
             creature.createPossessions();
             attachFakeCommunicator(creature);
             return creature;
@@ -204,6 +213,7 @@ public class WurmObjectsFactory {
             player.setWurmId(WurmId.getNextPlayerId(), 512, 512, 1, 1);
             ServerPackageFactory.addPlayer(player);
             creatures.put(player.getWurmId(), player);
+            player.currentTile = Zones.getOrCreateTile(512, 512, true);
             FieldSetter.setField(player, Creature.class.getDeclaredField("status"), new FakeCreatureStatus(player));
             FieldSetter.setField(player, Player.class.getDeclaredField("saveFile"), new FakePlayerInfo(player.getName()));
             player.createPossessions();
@@ -219,6 +229,7 @@ public class WurmObjectsFactory {
         try {
             trader = Creature.doNew(CreatureTemplateIds.SALESMAN_CID, 512, 517, 180.0f, 1, "Trader_" + (creatures.size() + 1), (byte)0);
             creatures.put(trader.getWurmId(), trader);
+            trader.currentTile = Zones.getOrCreateTile(512, 517, true);
             trader.createPossessions();
             attachFakeCommunicator(trader);
 
@@ -234,6 +245,7 @@ public class WurmObjectsFactory {
         try {
             merchant = Creature.doNew(CreatureTemplateIds.SALESMAN_CID, 512, 517, 180.0f, 1, "Merchant_" + (creatures.size() + 1), (byte)0);
             creatures.put(merchant.getWurmId(), merchant);
+            merchant.currentTile = Zones.getOrCreateTile(512, 517, true);
             merchant.createPossessions();
             attachFakeCommunicator(merchant);
 
@@ -398,19 +410,57 @@ public class WurmObjectsFactory {
     public Village createVillageFor(Creature owner, Creature... villagers) {
         try {
             Village v = Villages.createVillage(owner.getTileX(), 100, owner.getTileY(), 100, 1, 1, "Village" + ++villageIds, owner, createNewItem(ItemList.settlementDeed).getWurmId(),
-                    true, false, "", true, Kingdom.KINGDOM_FREEDOM, 5);
+                    true, false, "", false, owner.currentKingdom, 5);
             // Some permissions don't apply if village was just created.
-            Field creationDate = Village.class.getDeclaredField("creationDate");
-            creationDate.setAccessible(true);
-            Field modifiers = Field.class.getDeclaredField("modifiers");
-            modifiers.setAccessible(true);
-            modifiers.setInt(creationDate, creationDate.getModifiers() & ~Modifier.FINAL);
-            creationDate.set(v, System.currentTimeMillis() - (120000L * 2));
+            setFinalField(v, Village.class.getDeclaredField("creationDate"), System.currentTimeMillis() - (120000L * 2));
+            final Item token = ItemFactory.createItem(236, 99.0f, (float)((owner.getTileX() << 2) + 2), (float)((owner.getTileY() << 2) + 2), 180.0f, v.isOnSurface(), (byte)0, -10L, null);
+            token.setData2(v.getId());
+            v.setTokenId(token.getWurmId());
             v.resetRoles();
             for (Creature villager : villagers)
                 v.addCitizen(villager, v.getRoleForStatus(VillageStatus.ROLE_CITIZEN));
             return v;
-        } catch (IOException | NoSuchRoleException | NoSuchCreatureException | NoSuchPlayerException | NoSuchItemException | FailedException | NoSuchFieldException | IllegalAccessException e) {
+        } catch (IOException | NoSuchRoleException | NoSuchCreatureException | NoSuchPlayerException | NoSuchItemException | FailedException | NoSuchFieldException | NoSuchTemplateException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Bank createBankFor(Creature player) {
+        assert player.isPlayer();
+        Village village = player.getCitizenVillage();
+        if (village == null)
+            village = createVillageFor(player);
+        return createBankFor(player, village);
+    }
+
+    public Bank createBankFor(Creature player, Village village) {
+        try {
+            assert player.isPlayer();
+            Objenesis ob = new ObjenesisStd();
+            Bank newBank = ob.newInstance(Bank.class);
+            newBank.startedMoving = -10L;
+            newBank.currentVillage = -10;
+            newBank.targetVillage = -10;
+            newBank.open = false;
+            setFinalField(newBank, Bank.class.getDeclaredField("owner"), player.getWurmId());
+            setFinalField(newBank, Bank.class.getDeclaredField("size"), 5);
+            setFinalField(newBank, Bank.class.getDeclaredField("currentVillage"), village.getId());
+            setFinalField(newBank, Bank.class.getDeclaredField("lastPolled"), System.currentTimeMillis());
+            setFinalField(newBank, Bank.class.getDeclaredField("id"), WurmId.getNextBankId());
+            setFinalField(newBank, Bank.class.getDeclaredField("slots"), new BankSlot[5]);
+            ReflectionUtil.callPrivateMethod(null, Banks.class.getDeclaredMethod("addBank", Bank.class), newBank);
+
+            return newBank;
+        } catch (NoSuchFieldException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteBank(Bank bank) {
+        try {
+            //noinspection unchecked
+            ((Map<Long, Bank>)ReflectionUtil.getPrivateField(null, Banks.class.getDeclaredField("banks"))).remove(bank.owner);
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
     }
@@ -457,5 +507,17 @@ public class WurmObjectsFactory {
 
         item.setLockId(lock.getWurmId());
         lock.setLocked(true);
+    }
+
+    public void setFinalField(Object obj, Field field, Object value) {
+        try {
+            field.setAccessible(true);
+            Field modifiers = Field.class.getDeclaredField("modifiers");
+            modifiers.setAccessible(true);
+            modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            field.set(obj, value);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

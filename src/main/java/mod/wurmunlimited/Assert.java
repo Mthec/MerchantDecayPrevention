@@ -16,11 +16,11 @@ import java.util.stream.Stream;
 
 public class Assert {
 
-    private static final Pattern passthrough = Pattern.compile("passthrough\\{id=\"id\";text=\"([\\d]+)\"}");
+    private static final Pattern passThrough = Pattern.compile("passthrough\\{id=\"id\";text=\"([\\d]+)\"}");
     private static final Pattern defaultOption = Pattern.compile("default=\"([\\d]+)\";");
 
     private static String removePassThrough(String bml) {
-        return passthrough.matcher(bml).replaceAll("");
+        return passThrough.matcher(bml).replaceAll("");
     }
 
     private static String removePassThroughAndDefault(String bml) {
@@ -29,9 +29,9 @@ public class Assert {
 
     public static class ContainsEither<T> extends TypeSafeMatcher<Set<T>> {
 
-        private T one;
+        private final T one;
         private boolean answerOne;
-        private T two;
+        private final T two;
         private boolean answerTwo;
 
         private ContainsEither(T one, T two) {
@@ -135,9 +135,55 @@ public class Assert {
         return new Assert.TradingWindowContainsCoinsOfValue(value);
     }
 
+
+
+    public static class IsWearing extends TypeSafeMatcher<Creature> {
+
+        final Item item;
+        Creature creature;
+        final boolean wantWearing;
+
+        IsWearing(Item item, boolean wantWearing) {
+            this.item = item;
+            this.wantWearing = wantWearing;
+        }
+
+        protected boolean matchesSafely(Creature creature) {
+            this.creature = creature;
+            boolean result = !wantWearing;
+
+            for (Item it : creature.getBody().getAllItems()) {
+                if (it == item) {
+                    result = wantWearing;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText(" " + creature.getName() + (wantWearing ? "" : " not") + " wearing " + item.getNameWithGenus());
+        }
+
+        @Override
+        public void describeMismatchSafely(Creature creature, Description description) {
+            description.appendText(" " + creature.getName() + " was" + (wantWearing ? " not" : "") + " wearing " + item.getNameWithGenus());
+        }
+    }
+
+    public static Matcher<Creature> isWearing(Item item) {
+        return new Assert.IsWearing(item, true);
+    }
+
+    public static Matcher<Creature> isNotWearing(Item item) {
+        return new Assert.IsWearing(item, false);
+    }
+
     public static class ContainsMessage extends TypeSafeMatcher<Creature> {
 
-        private String message;
+        private final String message;
 
         private ContainsMessage(String message) {
             this.message = message;
@@ -170,7 +216,7 @@ public class Assert {
 
     public static class DoesNotContainMessage extends TypeSafeMatcher<Creature> {
 
-        private String message;
+        private final String message;
 
         private DoesNotContainMessage(String message) {
             this.message = message;
@@ -233,7 +279,7 @@ public class Assert {
 
     public static class ContainsNoneOf<T> extends TypeSafeMatcher<Collection<T>> {
 
-        private Collection<T> other;
+        private final Collection<T> other;
         private Collection<T> copy;
 
         private ContainsNoneOf(Collection<T> other) {
@@ -264,7 +310,7 @@ public class Assert {
 
     public static class ContentsEqual<T> extends TypeSafeMatcher<Collection<T>> {
 
-        private Collection<T> second;
+        private final Collection<T> second;
         private Collection<T> difference;
 
         private ContentsEqual(Collection<T> other) {
@@ -300,11 +346,9 @@ public class Assert {
 
     public static class BmlNotEqual extends TypeSafeMatcher<Creature> {
 
-        private String[] bml;
-
         @Override
         protected boolean matchesSafely(Creature creature) {
-            bml = WurmObjectsFactory.getCurrent().getCommunicator(creature).getBml();
+            String[] bml = WurmObjectsFactory.getCurrent().getCommunicator(creature).getBml();
             assert bml.length == 2;
             bml[0] = removePassThrough(bml[0]);
             bml[1] = removePassThrough(bml[1]);
@@ -333,7 +377,8 @@ public class Assert {
         @Override
         protected boolean matchesSafely(Creature creature) {
             bml = WurmObjectsFactory.getCurrent().getCommunicator(creature).getBml();
-            assert bml.length == 2;
+            if (bml.length != 2)
+                return false;
             bml[0] = removePassThrough(bml[0]);
             bml[1] = removePassThrough(bml[1]);
             return Stream.of(bml).distinct().count() == 1;
@@ -341,12 +386,20 @@ public class Assert {
 
         @Override
         public void describeTo(Description description) {
-            description.appendText(" No BML sent to match,");
+            if (bml.length != 2) {
+                description.appendText(" exactly two BML");
+            } else {
+                description.appendText(" matching BML");
+            }
         }
 
         @Override
         public void describeMismatchSafely(Creature creature, Description description) {
-            description.appendText(" these communications were received:\n" + Joiner.on("\n").join(WurmObjectsFactory.getCurrent().getCommunicator(creature).getBml()));
+            if (bml.length != 2) {
+                description.appendText(" received " + bml.length);
+            } else {
+                description.appendText(" these communications were received:\n" + Joiner.on("\n").join(WurmObjectsFactory.getCurrent().getCommunicator(creature).getBml()));
+            }
         }
     }
 
@@ -356,7 +409,7 @@ public class Assert {
 
     public static class Contains extends TypeSafeMatcher<String> {
 
-        private String sub;
+        private final String sub;
 
         private Contains(String sub) {
             this.sub = sub;
@@ -384,7 +437,7 @@ public class Assert {
 
     public static class BMLContains extends TypeSafeMatcher<Creature> {
 
-        private String content;
+        private final String content;
         private String lastBML;
 
         private BMLContains(String content) {
@@ -404,11 +457,41 @@ public class Assert {
 
         @Override
         public void describeMismatchSafely(Creature creature, Description description) {
-            description.appendText(content + " not found in " + lastBML);
+            description.appendText(" not found in " + lastBML);
         }
     }
 
     public static Matcher<Creature> receivedBMLContaining(String content) {
         return new BMLContains(content);
+    }
+
+    public static class BMLNotContains extends TypeSafeMatcher<Creature> {
+
+        private final String content;
+        private String lastBML;
+
+        private BMLNotContains(String content) {
+            this.content = content;
+        }
+
+        @Override
+        protected boolean matchesSafely(Creature creature) {
+            lastBML = WurmObjectsFactory.getCurrent().getCommunicator(creature).lastBmlContent;
+            return !lastBML.contains(content);
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText(" BML to not contain " + content);
+        }
+
+        @Override
+        public void describeMismatchSafely(Creature creature, Description description) {
+            description.appendText(" but it was found in " + lastBML);
+        }
+    }
+
+    public static Matcher<Creature> didNotReceiveBMLContaining(String content) {
+        return new BMLNotContains(content);
     }
 }

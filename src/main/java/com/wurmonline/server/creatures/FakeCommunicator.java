@@ -2,22 +2,34 @@ package com.wurmonline.server.creatures;
 
 import com.wurmonline.server.items.Item;
 import com.wurmonline.server.players.Player;
+import com.wurmonline.server.sounds.Sound;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FakeCommunicator extends Communicator {
-
-    private Creature me;
+    private final Creature me;
     public static final String empty = "EMPTY";
-    private List<String> messages = new ArrayList<>(5);
+    private final List<String> messages = new ArrayList<>();
     public String lastBmlContent = empty;
-    private List<String> bml = new ArrayList<>(5);
+    private final List<String> bml = new ArrayList<>();
     public boolean tradeWindowClosed = false;
     public Boolean tradeAgreed = null;
     public Item sentToInventory;
     public int sentToInventoryPrice;
     public boolean sentStartTrading = false;
+    public CustomizeFace sendCustomizeFace = null;
+    public final List<Long> openedInventoryWindows = new ArrayList<>();
+
+    public static class CustomizeFace {
+        public final long face;
+        public final long itemId;
+
+        CustomizeFace(long face, long itemId) {
+            this.face = face;
+            this.itemId = itemId;
+        }
+    }
 
     public FakeCommunicator(Creature creature) {
         me = creature;
@@ -79,6 +91,11 @@ public class FakeCommunicator extends Communicator {
         bml.add(content);
     }
 
+    public void clearBml() {
+        bml.clear();
+        lastBmlContent = empty;
+    }
+
     @Override
     public void sendCloseTradeWindow() {
         if (!(me instanceof Player))
@@ -95,15 +112,12 @@ public class FakeCommunicator extends Communicator {
 
     @Override
     public void sendTradeChanged(int id) {
-        if (me instanceof Player)
-            //super.sendTradeChanged(id);
-            return;
-        else
+        if (!(me instanceof Player))
             me.getTradeHandler().tradeChanged();
     }
 
     @Override
-    public void sendAddToInventory(Item item, long inventoryWindow, long rootid, int price) {
+    public void sendAddToInventory(Item item, long inventoryWindow, long rootId, int price) {
         sentToInventory = item;
         sentToInventoryPrice = price;
     }
@@ -147,5 +161,45 @@ public class FakeCommunicator extends Communicator {
         sentToInventory = null;
         sentToInventoryPrice = 0;
         sentStartTrading = false;
+    }
+
+    @Override
+    public void sendCustomizeFace(long face, long itemId) {
+        sendCustomizeFace = new CustomizeFace(face, itemId);
+    }
+
+    @Override
+    protected void sendCombatStatus(final float distanceToTarget, final float footing, final byte stance) {
+
+    }
+
+    @Override
+    protected void sendTarget(final long id) {
+
+    }
+
+    @Override
+    protected void sendStatus(final String status) {
+
+    }
+
+    @Override
+    public void sendMusic(final Sound sound) {
+
+    }
+
+    @Override
+    public void sendRemoveAlly(final String name) {
+
+    }
+
+    @Override
+    public void sendOpenInventoryWindow(final long inventoryWindow, final String title) {
+        openedInventoryWindows.add(inventoryWindow);
+    }
+
+    @Override
+    public void sendClearMapAnnotationsOfType(final byte type) {
+
     }
 }

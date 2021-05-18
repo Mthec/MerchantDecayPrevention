@@ -17,7 +17,7 @@ public class DbVillage extends Village {
 
     @Override
     int create() throws IOException {
-        return 0;
+        return Integer.parseInt(name.replace("Village", ""));
     }
 
     @Override
@@ -107,7 +107,7 @@ public class DbVillage extends Village {
 
     @Override
     public void setTokenId(long l) throws IOException {
-
+        tokenId = l;
     }
 
     @Override
@@ -222,7 +222,7 @@ public class DbVillage extends Village {
 
     @Override
     public void setAllianceNumber(int i) {
-
+        allianceNumber = i;
     }
 
     @Override

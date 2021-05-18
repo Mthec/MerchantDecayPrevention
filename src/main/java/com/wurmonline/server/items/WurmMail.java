@@ -9,8 +9,8 @@ public class WurmMail {
     public long itemId;
     public long ownerId;
 
-    public WurmMail(byte _type, long _itemid, long _sender, long _receiver, long _price, long _sent, long _expiration, int _sourceserver, boolean _rejected, boolean loading) {
-        itemId = _itemid;
+    public WurmMail(byte _type, long _itemId, long _sender, long _receiver, long _price, long _sent, long _expiration, int _sourceServer, boolean _rejected, boolean loading) {
+        itemId = _itemId;
         ownerId = _receiver;
     }
 

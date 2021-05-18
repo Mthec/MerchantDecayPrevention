@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 public class WurmId {
     private static long itemIdCounter;
-    private static int savecounter;
+    private static int saveCounter;
     private static long playerIdCounter;
     private static long creatureIdCounter;
     private static long structureIdCounter;
@@ -17,7 +17,7 @@ public class WurmId {
     private static long creatureSkillsIdCounter;
     private static long bankIdCounter;
     private static long spellIdCounter;
-    private static long wccommandCounter;
+    private static long wcCommandCounter;
     private static long planIdCounter;
     private static long bodyIdCounter;
     private static long coinIdCounter;
@@ -46,48 +46,48 @@ public class WurmId {
 
     public static final long getNextItemId() {
         ++itemIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(itemIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 2L;
+        return BigInteger.valueOf(itemIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 2L;
     }
 
     public static final long getNextPlayerId() {
         ++playerIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(playerIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 0L;
+        return BigInteger.valueOf(playerIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8);
     }
 
-    public static final long getNextBodyPartId(long creatureId, byte bodyplace, boolean isPlayer) {
-        return BigInteger.valueOf(BigInteger.valueOf(creatureId >> 8).shiftLeft(1).longValue() + (long)(isPlayer ? 1 : 0)).shiftLeft(16).longValue() + (long)(bodyplace << 8) + 19L;
+    public static final long getNextBodyPartId(long creatureId, byte bodyPlace, boolean isPlayer) {
+        return BigInteger.valueOf(BigInteger.valueOf(creatureId >> 8).shiftLeft(1).longValue() + (long)(isPlayer ? 1 : 0)).shiftLeft(16).longValue() + (long)(bodyPlace << 8) + 19L;
     }
 
-    public static final long getCreatureIdForBodyPart(long bodypartId) {
-        boolean isPlayer = (BigInteger.valueOf(bodypartId).shiftRight(16).longValue() & 1L) == 1L;
-        return (bodypartId >> 17) + (long)(isPlayer ? 0 : 1);
+    public static final long getCreatureIdForBodyPart(long bodyPartId) {
+        boolean isPlayer = (BigInteger.valueOf(bodyPartId).shiftRight(16).longValue() & 1L) == 1L;
+        return (bodyPartId >> 17) + (long)(isPlayer ? 0 : 1);
     }
 
-    public static final int getBodyPlaceForBodyPart(long bodypartId) {
-        return (int)(bodypartId >> 8 & 255L);
+    public static final int getBodyPlaceForBodyPart(long bodyPartId) {
+        return (int)(bodyPartId >> 8 & 255L);
     }
 
     public static final long getNextCreatureId() {
         ++creatureIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(creatureIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 1L;
+        return BigInteger.valueOf(creatureIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 1L;
     }
 
     public static final long getNextStructureId() {
         ++structureIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(structureIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 4L;
+        return BigInteger.valueOf(structureIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 4L;
     }
 
     public static final long getNextTempItemId() {
         ++tempIdCounter;
-        return BigInteger.valueOf(tempIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 6L;
+        return BigInteger.valueOf(tempIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 6L;
     }
 
     public static final long getNextIllusionId() {
@@ -97,95 +97,95 @@ public class WurmId {
 
     public static final long getNextTemporaryWoundId() {
         ++temporaryWoundIdCounter;
-        return BigInteger.valueOf(temporaryWoundIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 32L;
+        return BigInteger.valueOf(temporaryWoundIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 32L;
     }
 
     public static final long getNextWoundId() {
         ++woundIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(woundIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 8L;
+        return BigInteger.valueOf(woundIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 8L;
     }
 
     public static final long getNextTemporarySkillId() {
         ++temporarySkillsIdCounter;
-        return BigInteger.valueOf(temporarySkillsIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 31L;
+        return BigInteger.valueOf(temporarySkillsIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 31L;
     }
 
     public static final long getNextPlayerSkillId() {
         ++playerSkillsIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(playerSkillsIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 10L;
+        return BigInteger.valueOf(playerSkillsIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 10L;
     }
 
     public static final long getNextCreatureSkillId() {
         ++creatureSkillsIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(creatureSkillsIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 9L;
+        return BigInteger.valueOf(creatureSkillsIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 9L;
     }
 
     public static final long getNextBankId() {
         ++bankIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(bankIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 13L;
+        return BigInteger.valueOf(bankIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 13L;
     }
 
     public static final long getNextSpellId() {
         ++spellIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(spellIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 15L;
+        return BigInteger.valueOf(spellIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 15L;
     }
 
     public static final long getNextWCCommandId() {
-        ++wccommandCounter;
-        ++savecounter;
+        ++wcCommandCounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(wccommandCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 21L;
+        return BigInteger.valueOf(wcCommandCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 21L;
     }
 
     public static final long getNextPlanId() {
         ++planIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(planIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 16L;
+        return BigInteger.valueOf(planIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 16L;
     }
 
     public static final long getNextBodyId() {
         ++bodyIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(bodyIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 19L;
+        return BigInteger.valueOf(bodyIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 19L;
     }
 
     public static final long getNextCoinId() {
         ++coinIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(coinIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 20L;
+        return BigInteger.valueOf(coinIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 20L;
     }
 
     public static final long getNextPoiId() {
         ++poiIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(poiIdCounter).shiftLeft(24).longValue() + (long)(com.wurmonline.server.Servers.localServer.id << 8) + 26L;
+        return BigInteger.valueOf(poiIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 26L;
     }
 
     public static final long getNextCouponId() {
         ++couponIdCounter;
-        ++savecounter;
+        ++saveCounter;
         checkSave();
-        return BigInteger.valueOf(couponIdCounter).shiftLeft(24).longValue() + (long)(Servers.localServer.id << 8) + 29L;
+        return BigInteger.valueOf(couponIdCounter).shiftLeft(24).longValue() + ((long)Servers.localServer.id << 8) + 29L;
     }
 
     public static final void checkSave() {
-        if (savecounter >= 1000) {
+        if (saveCounter >= 1000) {
             updateNumbers();
-            savecounter = 0;
+            saveCounter = 0;
         }
 
     }
