@@ -5,6 +5,7 @@ import com.wurmonline.server.bodys.BodyFactory;
 import java.io.IOException;
 
 public class FakeCreatureStatus extends CreatureStatus {
+    public String savedName = "UNSET";
 
     public FakeCreatureStatus(Creature creature) {
         setPosition(new CreaturePos(creature.getWurmId(), 512, 512, 1, 1, 1, 1, -10, false));
@@ -110,7 +111,7 @@ public class FakeCreatureStatus extends CreatureStatus {
 
     @Override
     void saveCreatureName(String s) throws IOException {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        savedName = s;
     }
 
     @Override
