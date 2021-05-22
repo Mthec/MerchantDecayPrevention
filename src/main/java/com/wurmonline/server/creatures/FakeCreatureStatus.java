@@ -5,7 +5,8 @@ import com.wurmonline.server.bodys.BodyFactory;
 import java.io.IOException;
 
 public class FakeCreatureStatus extends CreatureStatus {
-    public String savedName = "UNSET";
+    public static String unset = "UNSET";
+    public String savedName = unset;
 
     public FakeCreatureStatus(Creature creature) {
         setPosition(new CreaturePos(creature.getWurmId(), 512, 512, 1, 1, 1, 1, -10, false));
