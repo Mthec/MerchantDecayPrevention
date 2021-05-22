@@ -77,6 +77,10 @@ public class Zones {
             return tile;
 
         tile = mock(VolaTile.class);
+        when(tile.getTileX()).thenReturn(x);
+        when(tile.getTileY()).thenReturn(y);
+        boolean isOnSurface = zone.isOnSurface();
+        when(tile.isOnSurface()).thenReturn(isOnSurface);
         when(tile.getCreatures()).thenReturn(new Creature[0]);
         when(tile.getStructure()).thenReturn(null);
         tiles.put(xy, tile);
