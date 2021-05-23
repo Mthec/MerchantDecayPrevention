@@ -459,8 +459,7 @@ public class WurmObjectsFactory {
 
     public void deleteBank(Bank bank) {
         try {
-            //noinspection unchecked
-            ((Map<Long, Bank>)ReflectionUtil.getPrivateField(null, Banks.class.getDeclaredField("banks"))).remove(bank.owner);
+            ReflectionUtil.<Map<Long, Bank>>getPrivateField(null, Banks.class.getDeclaredField("banks")).remove(bank.owner);
         } catch (IllegalAccessException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }

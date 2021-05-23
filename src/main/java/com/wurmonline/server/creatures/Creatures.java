@@ -1,6 +1,7 @@
 package com.wurmonline.server.creatures;
 
 import com.wurmonline.server.behaviours.Vehicles;
+import com.wurmonline.server.villages.Village;
 import mod.wurmunlimited.WurmObjectsFactory;
 
 import java.util.Collection;
@@ -44,6 +45,11 @@ public class Creatures {
     }
 
     public void permanentlyDelete(Creature creature) {
+        Village village = creature.getCitizenVillage();
+        if (village != null) {
+            village.removeCitizen(creature);
+        }
+
         WurmObjectsFactory.getCurrent().removeCreature(creature);
     }
 
