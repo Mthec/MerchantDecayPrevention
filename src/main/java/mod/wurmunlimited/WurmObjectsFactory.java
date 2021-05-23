@@ -215,6 +215,7 @@ public class WurmObjectsFactory {
             creatures.put(player.getWurmId(), player);
             player.currentTile = Zones.getOrCreateTile(512, 512, true);
             FieldSetter.setField(player, Creature.class.getDeclaredField("status"), new FakeCreatureStatus(player));
+            player.getBody().createBodyParts();
             FieldSetter.setField(player, Player.class.getDeclaredField("saveFile"), new FakePlayerInfo(player.getName()));
             player.createPossessions();
             attachFakeCommunicator(player);
