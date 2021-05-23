@@ -66,7 +66,7 @@ public class Assert {
 
     public static abstract class ContainsCoinsOfValue<T> extends TypeSafeMatcher<T> {
 
-        long value;
+        final long value;
         long answer = 0L;
 
         ContainsCoinsOfValue(long value) {

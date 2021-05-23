@@ -2,6 +2,7 @@ package com.wurmonline.server.spells;
 
 import com.wurmonline.server.WurmId;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class SpellEffect {
     public final long id;
     public float power;

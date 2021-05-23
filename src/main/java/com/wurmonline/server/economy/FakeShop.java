@@ -37,6 +37,7 @@ public class FakeShop extends Shop {
         Objenesis ob = new ObjenesisStd();
         FakeShop newShop = ob.newInstance(FakeShop.class);
         try {
+            //noinspection SpellCheckingInspection
             Field wurm_id = Shop.class.getDeclaredField("wurmid");
             wurm_id.setAccessible(true);
             Field modifiers = Field.class.getDeclaredField("modifiers");
