@@ -3,6 +3,7 @@ package com.wurmonline.server.zones;
 import com.wurmonline.math.TilePos;
 import com.wurmonline.server.creatures.Creature;
 import com.wurmonline.server.villages.Village;
+import com.wurmonline.server.villages.Villages;
 import org.mockito.stubbing.Answer;
 
 import javax.annotation.Nullable;
@@ -23,7 +24,6 @@ public class Zones {
     public static float worldMeterSizeX = (float)((worldTileSizeX - 1) * 4);
     public static float worldMeterSizeY = (float)((worldTileSizeY - 1) * 4);
     private static Zone[][] zones;
-    public static Map<VolaTile, Village> villages = new HashMap<>();
     public static final Map<XY, VolaTile> tiles = new HashMap<>();
 
     private static class XY {
@@ -54,7 +54,6 @@ public class Zones {
 
     public static void resetStatic() {
         zones = new Zone[worldTileSizeX >> 6][worldTileSizeY >> 6];
-        villages = new HashMap<>();
         tiles.clear();
     }
 
@@ -72,17 +71,26 @@ public class Zones {
 
     private static VolaTile getOrPut(int x, int y, Zone zone) {
         XY xy = new XY(x, y, zone);
-        VolaTile tile = tiles.get(xy);
-        if (tile != null)
-            return tile;
+        VolaTile maybeTile = tiles.get(xy);
+        if (maybeTile != null)
+            return maybeTile;
 
-        tile = mock(VolaTile.class);
+        VolaTile tile = mock(VolaTile.class);
         when(tile.getTileX()).thenReturn(x);
         when(tile.getTileY()).thenReturn(y);
         boolean isOnSurface = zone.isOnSurface();
         when(tile.isOnSurface()).thenReturn(isOnSurface);
         when(tile.getCreatures()).thenReturn(new Creature[0]);
         when(tile.getStructure()).thenReturn(null);
+        when(tile.getVillage()).thenAnswer(i -> {
+            for (Village village : Villages.getVillages()) {
+                if (village.covers(tile.getTileX(), tile.getTileY())) {
+                    return village;
+                }
+            }
+
+            return null;
+        });
         tiles.put(xy, tile);
         return tile;
     }

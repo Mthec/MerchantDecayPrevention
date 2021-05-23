@@ -410,7 +410,7 @@ public class WurmObjectsFactory {
 
     public Village createVillageFor(Creature owner, Creature... villagers) {
         try {
-            Village v = Villages.createVillage(owner.getTileX(), 100, owner.getTileY(), 100, 1, 1, "Village" + ++villageIds, owner, createNewItem(ItemList.settlementDeed).getWurmId(),
+            Village v = Villages.createVillage(owner.getTileX(), owner.getTileX() + 100, owner.getTileY(), owner.getTileY() + 100, 1, 1, "Village" + ++villageIds, owner, createNewItem(ItemList.settlementDeed).getWurmId(),
                     true, false, "", false, owner.currentKingdom, 5);
             // Some permissions don't apply if village was just created.
             setFinalField(v, Village.class.getDeclaredField("creationDate"), System.currentTimeMillis() - (120000L * 2));
