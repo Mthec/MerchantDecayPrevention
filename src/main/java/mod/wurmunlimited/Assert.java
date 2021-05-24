@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 
 public class Assert {
 
-    private static final Pattern passThrough = Pattern.compile("passthrough\\{id=\"id\";text=\"([\\d]+)\"}");
-    private static final Pattern defaultOption = Pattern.compile("default=\"([\\d]+)\";");
+    private static final Pattern passThrough = Pattern.compile("passthrough\\{id=[\"']id[\"'];text=[\"']([\\d]+)[\"']}");
+    private static final Pattern defaultOption = Pattern.compile("default=[\"']([\\d]+)[\"'];");
 
     private static String removePassThrough(String bml) {
         return passThrough.matcher(bml).replaceAll("");
