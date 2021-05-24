@@ -509,7 +509,7 @@ public class WurmObjectsFactory {
         lock.setLocked(true);
     }
 
-    public void setFinalField(Object obj, Field field, Object value) {
+    public static void setFinalField(Object obj, Field field, Object value) {
         try {
             field.setAccessible(true);
             Field modifiers = Field.class.getDeclaredField("modifiers");
