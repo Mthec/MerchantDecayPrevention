@@ -20,6 +20,8 @@ public class FakeCommunicator extends Communicator {
     public boolean sentStartTrading = false;
     public CustomizeFace sendCustomizeFace = null;
     public final List<Long> openedInventoryWindows = new ArrayList<>();
+    public int stamina = 65535;
+    public int damage = 0;
 
     public static class CustomizeFace {
         public final long face;
@@ -201,5 +203,11 @@ public class FakeCommunicator extends Communicator {
     @Override
     public void sendClearMapAnnotationsOfType(final byte type) {
 
+    }
+
+    @Override
+    protected void sendStamina(int stamina, int damage) {
+        this.stamina = stamina;
+        this.damage = damage;
     }
 }

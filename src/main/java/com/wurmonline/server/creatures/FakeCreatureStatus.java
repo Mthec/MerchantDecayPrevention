@@ -18,6 +18,7 @@ public class FakeCreatureStatus extends CreatureStatus {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+        stamina = 65535;
     }
 
     @Override
