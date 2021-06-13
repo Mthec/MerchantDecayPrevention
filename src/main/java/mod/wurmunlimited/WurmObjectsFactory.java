@@ -28,11 +28,15 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class WurmObjectsFactory {
+    private static final List<Character> alphabet = IntStream.rangeClosed('a', 'z').mapToObj(c -> (char)c).collect(Collectors.toList());
+    private static final List<Iterator<Character>> chars = new ArrayList<>();
     protected Map<Long, Creature> creatures = new HashMap<>(10);
     private final Map<Creature, FakeCommunicator> communicators = new HashMap<>(10);
     protected Map<Creature, FakeShop> shops = new HashMap<>(4);
@@ -171,6 +175,28 @@ public class WurmObjectsFactory {
         current = this;
     }
 
+    protected static String randomName(String baseName) {
+        if (chars.isEmpty()) {
+            chars.add(alphabet.iterator());
+        }
+
+        int idx = 0;
+        Iterator<Character> toAdd = null;
+        List<String> characters = new ArrayList<>();
+        while (idx != chars.size()) {
+            Iterator<Character> iterator = chars.get(idx++);
+            if (iterator.hasNext()) {
+                characters.add(iterator.next().toString());
+            } else if (idx == chars.size()) {
+                chars.add(alphabet.iterator());
+            } else {
+                chars.set(idx, alphabet.iterator());
+            }
+        }
+
+        return baseName + String.join("", characters);
+    }
+
     public void addCreature(Creature creature) {
         creatures.put(creature.getWurmId(), creature);
     }
@@ -195,7 +221,7 @@ public class WurmObjectsFactory {
 
     public Creature createNewCreature(int creatureTemplateId) {
         try {
-            Creature creature = Creature.doNew(creatureTemplateId, 512, 512, 1, 1, "Creature" + (creatures.size() + 1), (byte)0);
+            Creature creature = Creature.doNew(creatureTemplateId, 512, 512, 1, 1, randomName("Creature"), (byte)0);
             creatures.put(creature.getWurmId(), creature);
             creature.currentTile = Zones.getOrCreateTile(512, 512, true);
             creature.createPossessions();
@@ -209,7 +235,7 @@ public class WurmObjectsFactory {
     public Player createNewPlayer() {
         try {
             Player player = Player.doNewPlayer(CreatureTemplateIds.HUMAN_CID);
-            player.setName("Player_" + creatures.size());
+            player.setName(randomName("Player_"));
             player.setWurmId(WurmId.getNextPlayerId(), 512, 512, 1, 1);
             ServerPackageFactory.addPlayer(player);
             creatures.put(player.getWurmId(), player);
@@ -228,7 +254,7 @@ public class WurmObjectsFactory {
     public Creature createNewTrader() {
         Creature trader;
         try {
-            trader = Creature.doNew(CreatureTemplateIds.SALESMAN_CID, 512, 517, 180.0f, 1, "Trader_" + (creatures.size() + 1), (byte)0);
+            trader = Creature.doNew(CreatureTemplateIds.SALESMAN_CID, 512, 517, 180.0f, 1, "Trader_" + randomName(""), (byte)0);
             creatures.put(trader.getWurmId(), trader);
             trader.currentTile = Zones.getOrCreateTile(512, 517, true);
             trader.createPossessions();
@@ -244,7 +270,7 @@ public class WurmObjectsFactory {
     public Creature createNewMerchant(Creature owner) {
         Creature merchant;
         try {
-            merchant = Creature.doNew(CreatureTemplateIds.SALESMAN_CID, 512, 517, 180.0f, 1, "Merchant_" + (creatures.size() + 1), (byte)0);
+            merchant = Creature.doNew(CreatureTemplateIds.SALESMAN_CID, 512, 517, 180.0f, 1, "Merchant_" + randomName(""), (byte)0);
             creatures.put(merchant.getWurmId(), merchant);
             merchant.currentTile = Zones.getOrCreateTile(512, 517, true);
             merchant.createPossessions();
