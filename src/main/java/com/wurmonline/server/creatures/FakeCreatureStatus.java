@@ -1,6 +1,7 @@
 package com.wurmonline.server.creatures;
 
 import com.wurmonline.server.bodys.BodyFactory;
+import com.wurmonline.server.kingdom.Kingdom;
 
 import java.io.IOException;
 
@@ -19,6 +20,7 @@ public class FakeCreatureStatus extends CreatureStatus {
             throw new RuntimeException(e);
         }
         stamina = 65535;
+        kingdom = Kingdom.KINGDOM_FREEDOM;
     }
 
     @Override

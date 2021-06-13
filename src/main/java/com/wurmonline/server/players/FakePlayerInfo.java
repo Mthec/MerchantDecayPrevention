@@ -12,7 +12,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 
 public class FakePlayerInfo extends PlayerInfo {
-
     public FakePlayerInfo(String name) {
         super(name);
     }
