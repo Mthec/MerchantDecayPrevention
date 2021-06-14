@@ -60,4 +60,8 @@ public class Servers {
     public static void sendWebCommandToAllServers(short type, WebCommand command, boolean epicOnly) {
         sentCommands.add(command);
     }
+
+    public static ServerEntry getClosestSpawnServer(byte b) {
+        return localServer;
+    }
 }

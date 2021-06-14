@@ -125,6 +125,6 @@ public class FakeCreatureStatus extends CreatureStatus {
 
     @Override
     void setDisease(byte b) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        disease = b;
     }
 }

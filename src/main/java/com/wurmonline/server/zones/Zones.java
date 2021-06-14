@@ -205,4 +205,8 @@ public class Zones {
     public static void addWarDomains() {
 
     }
+
+    public static boolean isGoodTileForSpawn(int i1, int i2, boolean b1, boolean b2) {
+        return true;
+    }
 }

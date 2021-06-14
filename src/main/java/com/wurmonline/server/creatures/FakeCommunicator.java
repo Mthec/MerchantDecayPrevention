@@ -1,5 +1,6 @@
 package com.wurmonline.server.creatures;
 
+import com.wurmonline.server.bodys.Wound;
 import com.wurmonline.server.items.Item;
 import com.wurmonline.server.players.Player;
 import com.wurmonline.server.sounds.Sound;
@@ -210,4 +211,63 @@ public class FakeCommunicator extends Communicator {
         this.stamina = stamina;
         this.damage = damage;
     }
+
+    @Override
+    public void sendAddWound(final Wound wound, final Item bodyPart) {}
+
+    @Override
+    public void setGroundOffset(final int offset, final boolean immediately) {}
+
+    @Override
+    public void sendSpecialMove(final short move, final String moveName) {}
+
+    @Override
+    public void sendCombatOptions(final byte[] options, final short tenthsOfSeconds) {}
+
+    @Override
+    public void sendCombatNormalMessage(final String message) {
+        this.sendCombatNormalMessage(message, (byte)0);
+    }
+
+    @Override
+    public void sendCombatNormalMessage(final String message, final byte messageType) {
+        this.sendCombatServerMessage(message, (byte)(-1), (byte)(-1), (byte)(-1), messageType);
+    }
+
+    @Override
+    public void sendCombatAlertMessage(final String message) {
+        this.sendCombatServerMessage(message, (byte)(-1), (byte)(-106), (byte)10, (byte)0);
+    }
+
+    @Override
+    public void sendCombatSafeMessage(final String message) {
+        this.sendCombatServerMessage(message, (byte)102, (byte)(-72), (byte)120, (byte)0);
+    }
+
+    @Override
+    public void sendCombatServerMessage(final String message, final byte r, final byte g, final byte b) {
+        this.sendCombatServerMessage(message, r, g, b, (byte)0);
+    }
+
+    @Override
+    public void sendCombatServerMessage(final String message, final byte r, final byte g, final byte b, final byte messageType) {
+        System.out.println(message);
+    }
+
+    @Override
+    public void sendRemoveWound(final Wound wound) {}
+
+    @Override
+    public void sendRemoveSpellEffect(final long id, final SpellEffectsEnum spellEffect) {}
+
+    @Override
+    public void sendRemoveSpellEffect(final SpellEffectsEnum effect) {}
+
+    @Override
+    protected void sendSpeedModifier(final float speedModifier) {}
+
+    @Override
+    public void sendDead() {}
+
+    public void sendUpdateWound(final Wound wound, final Item bodyPart) {}
 }

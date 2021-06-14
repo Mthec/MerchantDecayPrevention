@@ -106,4 +106,8 @@ public class Creatures {
             }
         }
     }
+
+    public boolean isCreatureProtected(long value) {
+        return false;
+    }
 }
