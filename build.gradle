@@ -8,16 +8,14 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
+    mavenLocal()
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
     api 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
     api 'org.junit.platform:junit-platform-runner:1.1.0'
     api "org.mockito:mockito-inline:2.+"
-    compileOnly fileTree(dir: 'E:/Steam/steamapps/common/Wurm Unlimited/WurmServerLauncher/', includes: ["server.jar", "modlauncher.jar", "javassist.jar"])
-
-//    compileOnly fileTree(dir: 'E:/Steam/steamapps/common/Wurm Unlimited/WurmServerLauncher/lib/',
-//            includes: ["WurmUnlimitedCommon-1.9.2.7.jar", "annotations-2.0.1.jar", "guava-18.0.jar", "annotations-16.0.2.jar", "ServerLauncher-0.43.jar"])
+    implementation("com.wurmonline:server:1.9")
+    implementation("org.gotti.wurmunlimited:server-modlauncher:0.45")
 }
