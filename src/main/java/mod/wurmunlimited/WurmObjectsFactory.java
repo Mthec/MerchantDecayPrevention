@@ -17,6 +17,7 @@ import com.wurmonline.server.villages.VillageStatus;
 import com.wurmonline.server.villages.Villages;
 import com.wurmonline.server.zones.Zones;
 import org.gotti.wurmunlimited.modloader.ReflectionUtil;
+import org.gotti.wurmunlimited.modsupport.actions.ActionEntryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.stubbing.Answer;
@@ -92,11 +93,12 @@ public class WurmObjectsFactory {
         econ.set(null, economy);
         assert Economy.getEconomy() == economy;
         when(economy.getShop(any(Creature.class))).thenAnswer(i -> {
-            FakeShop shop = shops.get((Creature)i.getArgument(0));
+            Creature creature = i.getArgument(0);
+            FakeShop shop = shops.get(creature);
 
-            if (shop == null) {
+            if (shop == null && !creature.isPlayer()) {
                 shop = FakeShop.createFakeTraderShop(((Creature)i.getArgument(0)).getWurmId());
-                shops.put(i.getArgument(0), shop);
+                shops.put(creature, shop);
                 return shop;
             }
 
@@ -151,6 +153,9 @@ public class WurmObjectsFactory {
         when(economy.getChangeFor(anyLong())).thenAnswer(i -> new Change(i.getArgument(0)));
         when(economy.createShop(anyLong(), anyLong())).thenAnswer(i -> {
             Creature creature = creatures.get((long)i.getArgument(0));
+            if (creature.isPlayer()) {
+                return null;
+            }
             FakeShop shop = FakeShop.createFakeShop(creature, creatures.get((long)i.getArgument(1)));
             shops.put(creature, shop);
             return shop;
@@ -171,6 +176,8 @@ public class WurmObjectsFactory {
 
         Server.caveMesh = mock(MeshIO.class);
         Server.surfaceMesh = mock(MeshIO.class);
+
+        ActionEntryBuilder.init();
 
         current = this;
     }
@@ -213,6 +220,10 @@ public class WurmObjectsFactory {
         FakeCommunicator newCom = new FakeCommunicator(creature);
         creature.setCommunicator(newCom);
         communicators.put(creature, newCom);
+    }
+
+    public void addShop(Creature creature, FakeShop shop) {
+        shops.put(creature, shop);
     }
 
     public Creature createNewCreature() {
@@ -304,8 +315,8 @@ public class WurmObjectsFactory {
         creatures.remove(creature.getWurmId());
     }
 
-    public FakeShop getShop(Creature buyer) {
-        return shops.get(buyer);
+    public FakeShop getShop(Creature creature) {
+        return shops.get(creature);
     }
 
     public FakeCommunicator getCommunicator(Creature creature) {
