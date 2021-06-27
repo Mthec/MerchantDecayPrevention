@@ -95,7 +95,7 @@ public class Zones {
         return tile;
     }
 
-    private static Zone createMockZone() {
+    private static Zone createMockZone(boolean surfaced) {
         Zone zone = mock(Zone.class);
         when(zone.getTileOrNull(anyInt(), anyInt())).thenAnswer((Answer<VolaTile>)i -> tiles.get(new XY(i.getArgument(0), i.getArgument(1), zone)));
         when(zone.getOrCreateTile(any(TilePos.class))).thenAnswer((Answer<VolaTile>)i -> {
@@ -103,6 +103,7 @@ public class Zones {
             return getOrPut(tilePos.x, tilePos.y, zone);
         });
         when(zone.getOrCreateTile(anyInt(), anyInt())).thenAnswer((Answer<VolaTile>)i -> getOrPut(i.getArgument(0), i.getArgument(1), zone));
+        when(zone.isOnSurface()).thenReturn(surfaced);
         return zone;
     }
 
@@ -115,7 +116,7 @@ public class Zones {
         }
 
         if (newZone == null) {
-            newZone = createMockZone();
+            newZone = createMockZone(surfaced);
             zones[tilex >> 6][tiley >> 6] = newZone;
         }
 
