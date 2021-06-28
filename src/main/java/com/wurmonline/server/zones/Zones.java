@@ -2,6 +2,7 @@ package com.wurmonline.server.zones;
 
 import com.wurmonline.math.TilePos;
 import com.wurmonline.server.creatures.Creature;
+import com.wurmonline.server.items.Item;
 import com.wurmonline.server.villages.Village;
 import com.wurmonline.server.villages.Villages;
 import org.mockito.stubbing.Answer;
@@ -12,8 +13,7 @@ import java.util.logging.Logger;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class Zones {
     private static final Logger logger = Logger.getLogger(Zones.class.getName());
@@ -25,6 +25,7 @@ public class Zones {
     public static float worldMeterSizeY = (float)((worldTileSizeY - 1) * 4);
     private static Zone[][] zones;
     public static final Map<XY, VolaTile> tiles = new HashMap<>();
+    private static final Map<VolaTile, List<Item>> items = new HashMap<>();
 
     private static class XY {
         private final int x;
@@ -55,14 +56,15 @@ public class Zones {
     public static void resetStatic() {
         zones = new Zone[worldTileSizeX >> 6][worldTileSizeY >> 6];
         tiles.clear();
+        items.clear();
     }
 
     public static int safeTileX(int i) {
-        return 1;
+        return Math.max(0, Math.min(i, Zones.worldTileSizeX - 1));
     }
 
     public static int safeTileY(int i) {
-        return 1;
+        return Math.max(0, Math.min(i, Zones.worldTileSizeY - 1));
     }
 
     public static final float calculatePosZ(float posX, float posY, VolaTile tile, boolean isOnSurface, boolean floating, float currentPosZ, @Nullable Creature creature, long bridgeId) {
@@ -91,11 +93,12 @@ public class Zones {
 
             return null;
         });
+        doAnswer((Answer<Item[]>)i -> items.getOrDefault(tiles.get(new XY(x, y, zone)), new ArrayList<>()).toArray(new Item[0])).when(tile).getItems();
         tiles.put(xy, tile);
         return tile;
     }
 
-    private static Zone createMockZone(boolean surfaced) {
+    private static Zone createMockZone(int x, int y, boolean surfaced) {
         Zone zone = mock(Zone.class);
         when(zone.getTileOrNull(anyInt(), anyInt())).thenAnswer((Answer<VolaTile>)i -> tiles.get(new XY(i.getArgument(0), i.getArgument(1), zone)));
         when(zone.getOrCreateTile(any(TilePos.class))).thenAnswer((Answer<VolaTile>)i -> {
@@ -104,6 +107,18 @@ public class Zones {
         });
         when(zone.getOrCreateTile(anyInt(), anyInt())).thenAnswer((Answer<VolaTile>)i -> getOrPut(i.getArgument(0), i.getArgument(1), zone));
         when(zone.isOnSurface()).thenReturn(surfaced);
+        doAnswer(i -> {
+            Item item = i.getArgument(0);
+            items.computeIfAbsent(getOrPut(item.getTileX(), item.getTileY(), zone), (z) -> new ArrayList<>()).add(item);
+            item.zoneId = zone.id;
+            return null;
+        }).when(zone).addItem(any(Item.class));
+        doAnswer(i -> {
+            Item item = i.getArgument(0);
+            items.computeIfAbsent(getOrPut(item.getTileX(), item.getTileY(), zone), (z) -> new ArrayList<>()).remove(item);
+            item.zoneId = -10;
+            return null;
+        }).when(zone).removeItem(any(Item.class));
         return zone;
     }
 
@@ -116,7 +131,7 @@ public class Zones {
         }
 
         if (newZone == null) {
-            newZone = createMockZone(surfaced);
+            newZone = createMockZone(tilex, tiley, surfaced);
             zones[tilex >> 6][tiley >> 6] = newZone;
         }
 
