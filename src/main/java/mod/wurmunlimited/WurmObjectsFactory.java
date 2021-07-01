@@ -87,6 +87,7 @@ public class WurmObjectsFactory {
     public WurmObjectsFactory() throws Exception {
         Zones.resetStatic();
         Arrays.stream(Villages.getVillages()).forEach(village -> village.disband("upkeep"));
+        WurmMail.resetStatic();
         Economy economy = mock(Economy.class);
         Field econ = Economy.class.getDeclaredField("economy");
         econ.setAccessible(true);

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class WurmMail {
 
-    public static List<WurmMail> allMail = new ArrayList<>(5);
+    public static List<WurmMail> allMail = new ArrayList<>();
     public long itemId;
     public long ownerId;
 
@@ -15,7 +15,7 @@ public class WurmMail {
     }
 
     public static void resetStatic() {
-        allMail = new ArrayList<>(5);
+        allMail = new ArrayList<>();
     }
 
     public static void addWurmMail(WurmMail mail) {
