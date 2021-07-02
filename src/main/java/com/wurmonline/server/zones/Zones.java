@@ -3,6 +3,7 @@ package com.wurmonline.server.zones;
 import com.wurmonline.math.TilePos;
 import com.wurmonline.server.creatures.Creature;
 import com.wurmonline.server.items.Item;
+import com.wurmonline.server.structures.Floor;
 import com.wurmonline.server.villages.Village;
 import com.wurmonline.server.villages.Villages;
 import org.mockito.stubbing.Answer;
@@ -83,6 +84,8 @@ public class Zones {
         boolean isOnSurface = zone.isOnSurface();
         when(tile.isOnSurface()).thenReturn(isOnSurface);
         when(tile.getCreatures()).thenReturn(new Creature[0]);
+        when(tile.getFloors()).thenReturn(new Floor[0]);
+        when(tile.getFloors(anyInt(), anyInt())).thenReturn(new Floor[0]);
         when(tile.getStructure()).thenReturn(null);
         when(tile.getVillage()).thenAnswer(i -> {
             for (Village village : Villages.getVillages()) {
