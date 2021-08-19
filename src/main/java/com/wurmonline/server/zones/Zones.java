@@ -228,4 +228,12 @@ public class Zones {
     public static boolean isGoodTileForSpawn(int i1, int i2, boolean b1, boolean b2) {
         return true;
     }
+
+    public static void calculateZones(boolean b) {
+
+    }
+
+    public static float getPercentLandForKingdom(boolean b) {
+        return 10;
+    }
 }

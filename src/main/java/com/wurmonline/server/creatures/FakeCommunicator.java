@@ -21,6 +21,7 @@ public class FakeCommunicator extends Communicator {
     public boolean sentStartTrading = false;
     public CustomizeFace sendCustomizeFace = null;
     public final List<Long> openedInventoryWindows = new ArrayList<>();
+    public final List<Long> closedInventoryWindows = new ArrayList<>();
     public int stamina = 65535;
     public int damage = 0;
 
@@ -270,4 +271,10 @@ public class FakeCommunicator extends Communicator {
     public void sendDead() {}
 
     public void sendUpdateWound(final Wound wound, final Item bodyPart) {}
+
+    @Override
+    public boolean sendCloseInventoryWindow(long windowId) {
+        closedInventoryWindows.add(windowId);
+        return true;
+    }
 }
