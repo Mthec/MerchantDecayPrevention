@@ -12,8 +12,9 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 
 public class FakePlayerInfo extends PlayerInfo {
-    public FakePlayerInfo(String name) {
+    public FakePlayerInfo(long wurmId, String name) {
         super(name);
+        this.wurmId = wurmId;
     }
 
     @Override

@@ -37,6 +37,10 @@ public class ItemFactory {
         return item;
     }
 
+    public static Item createItem(int templateId, float ql, byte rarity, String creator) throws NoSuchTemplateException {
+        return createItem(templateId, ql, 1.0f, 1.0f, 0.0f, true, Materials.MATERIAL_IRON, rarity, -10, creator);
+    }
+
     public static Item createItem(int templateId, float ql, byte material, byte rarity, long bridgeId, String creator) throws NoSuchTemplateException {
         return createItem(templateId, ql, 1.0f, 1.0f, 0.0f, true, material, rarity, bridgeId, creator);
     }

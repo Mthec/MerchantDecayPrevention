@@ -13,9 +13,9 @@ repositories {
 }
 
 dependencies {
-    api 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
-    api 'org.junit.platform:junit-platform-runner:1.1.0'
-    api "org.mockito:mockito-inline:2.+"
+    api 'org.junit.jupiter:junit-jupiter-engine:5.8.0'
+    api 'org.junit.platform:junit-platform-runner:1.7.2'
+    api 'org.mockito:mockito-inline:3.12.4'
     implementation("com.wurmonline:server:1.9")
     implementation("org.gotti.wurmunlimited:server-modlauncher:0.45")
 }

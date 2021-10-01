@@ -40,6 +40,10 @@ public class Creatures {
         }
     }
 
+    public Creature[] getCreatures() {
+        return WurmObjectsFactory.getCurrent().getAllCreatures().toArray(new Creature[0]);
+    }
+
     public void sendToWorld(Creature creature) {
 
     }

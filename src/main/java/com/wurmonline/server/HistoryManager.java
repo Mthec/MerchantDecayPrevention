@@ -5,4 +5,8 @@ public class HistoryManager {
     public static void addHistory(String performerName, String event, boolean twit) {
 
     }
+
+    public static void addHistory(String performerName, String event) {
+
+    }
 }

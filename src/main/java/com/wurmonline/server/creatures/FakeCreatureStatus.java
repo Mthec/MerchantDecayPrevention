@@ -60,7 +60,7 @@ public class FakeCreatureStatus extends CreatureStatus {
 
     @Override
     void updateAge(int i) throws IOException {
-        throw new UnsupportedOperationException("Not yet implemented.");
+        age = i;
     }
 
     @Override

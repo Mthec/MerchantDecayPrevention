@@ -4,6 +4,7 @@ import com.wurmonline.math.TilePos;
 import com.wurmonline.server.creatures.Creature;
 import com.wurmonline.server.items.Item;
 import com.wurmonline.server.structures.Floor;
+import com.wurmonline.server.structures.Structure;
 import com.wurmonline.server.villages.Village;
 import com.wurmonline.server.villages.Villages;
 import org.mockito.stubbing.Answer;
@@ -235,5 +236,28 @@ public class Zones {
 
     public static float getPercentLandForKingdom(boolean b) {
         return 10;
+    }
+
+    public static Structure[] getStructuresInArea(int startX, int startY, int endX, int endY, boolean surfaced) {
+        final Set<Structure> set = new HashSet<Structure>();
+        for (int x = startX; x <= endX; ++x) {
+            for (int y = startY; y <= endY; ++y) {
+                final VolaTile tile = getTileOrNull(x, y, surfaced);
+                if (tile != null) {
+                    final Structure structure = tile.getStructure();
+                    if (structure != null && !set.contains(structure) && structure.isTypeHouse()) {
+                        set.add(structure);
+                    }
+                }
+            }
+        }
+        Structure[] toReturn;
+        if (set.size() > 0) {
+            toReturn = set.toArray(new Structure[0]);
+        }
+        else {
+            toReturn = new Structure[0];
+        }
+        return toReturn;
     }
 }

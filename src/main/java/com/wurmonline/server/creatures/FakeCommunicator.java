@@ -24,6 +24,8 @@ public class FakeCommunicator extends Communicator {
     public final List<Long> closedInventoryWindows = new ArrayList<>();
     public int stamina = 65535;
     public int damage = 0;
+    public String actionMe = "";
+    public String actionOther = "";
 
     public static class CustomizeFace {
         public final long face;
@@ -276,5 +278,14 @@ public class FakeCommunicator extends Communicator {
     public boolean sendCloseInventoryWindow(long windowId) {
         closedInventoryWindows.add(windowId);
         return true;
+    }
+
+    @Override
+    public void sendActionControl(final long creatureId, final String actionString, final boolean start, final int timeLeft) {
+        if (creatureId == me.getWurmId()) {
+            actionMe = actionString;
+        } else {
+            actionOther = actionString;
+        }
     }
 }

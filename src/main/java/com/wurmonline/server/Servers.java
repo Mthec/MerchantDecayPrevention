@@ -1,11 +1,13 @@
 package com.wurmonline.server;
 
+import com.wurmonline.server.economy.MonetaryConstants;
 import com.wurmonline.server.webinterface.WebCommand;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class Servers {
     @SuppressWarnings("WeakerAccess")
@@ -20,6 +22,8 @@ public class Servers {
 
     static {
         localServer = mock(ServerEntry.class);
+        when(localServer.isFreeDeeds()).thenReturn(false);
+        when(localServer.getTraderMaxIrons()).thenReturn(MonetaryConstants.COIN_GOLD);
         loginServer = localServer;
         setHostileServer(false);
     }
@@ -63,5 +67,19 @@ public class Servers {
 
     public static ServerEntry getClosestSpawnServer(byte b) {
         return localServer;
+    }
+
+    public static String getLocalServerName() {
+        return localServer.name;
+    }
+
+    public static ServerEntry getServerWithId(int serverId) {
+        if (serverId == loginServer.id) {
+            return loginServer;
+        } else if (serverId == localServer.id) {
+            return localServer;
+        } else {
+            throw new RuntimeException("No server found with id " + serverId + ".");
+        }
     }
 }

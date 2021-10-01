@@ -44,6 +44,7 @@ public class FakeShop extends Shop {
             modifiers.setAccessible(true);
             modifiers.setInt(wurm_id, wurm_id.getModifiers() & ~Modifier.FINAL);
             wurm_id.set(newShop, wurmId);
+            newShop.ownerId = -10;
 
             Field localSupplyDemand = Shop.class.getDeclaredField("localSupplyDemand");
             localSupplyDemand.setAccessible(true);

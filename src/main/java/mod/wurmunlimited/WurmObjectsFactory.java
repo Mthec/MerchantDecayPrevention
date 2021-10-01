@@ -9,6 +9,7 @@ import com.wurmonline.server.banks.Banks;
 import com.wurmonline.server.creatures.*;
 import com.wurmonline.server.economy.*;
 import com.wurmonline.server.items.*;
+import com.wurmonline.server.kingdom.Kingdoms;
 import com.wurmonline.server.players.FakePlayerInfo;
 import com.wurmonline.server.players.Player;
 import com.wurmonline.server.villages.NoSuchRoleException;
@@ -19,7 +20,6 @@ import com.wurmonline.server.zones.Zones;
 import org.gotti.wurmunlimited.modloader.ReflectionUtil;
 import org.gotti.wurmunlimited.modsupport.actions.ActionEntryBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.mockito.internal.util.reflection.FieldSetter;
 import org.mockito.stubbing.Answer;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
@@ -79,6 +79,7 @@ public class WurmObjectsFactory {
             ItemTemplateCreator.initialiseItemTemplates();
             CreatureTemplateCreator.createCreatureTemplates();
             CreationEntryCreator.createCreationEntries();
+            Constants.dbHost = ".";
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -98,6 +99,18 @@ public class WurmObjectsFactory {
             FakeShop shop = shops.get(creature);
 
             if (shop == null && !creature.isPlayer()) {
+                shop = FakeShop.createFakeTraderShop(((Creature)i.getArgument(0)).getWurmId());
+                shops.put(creature, shop);
+                return shop;
+            }
+
+            return shop;
+        });
+        when(economy.getShop(any(Creature.class), anyBoolean())).thenAnswer(i -> {
+            Creature creature = i.getArgument(0);
+            FakeShop shop = shops.get(creature);
+
+            if (shop == null && !creature.isPlayer() && !(boolean)i.getArgument(1)) {
                 shop = FakeShop.createFakeTraderShop(((Creature)i.getArgument(0)).getWurmId());
                 shops.put(creature, shop);
                 return shop;
@@ -161,6 +174,7 @@ public class WurmObjectsFactory {
             shops.put(creature, shop);
             return shop;
         });
+        when(economy.getShops()).thenReturn(shops.values().toArray(new FakeShop[0]));
         Field economyShops = Economy.class.getDeclaredField("shops");
         economyShops.setAccessible(true);
         Field modifiers = Field.class.getDeclaredField("modifiers");
@@ -174,6 +188,7 @@ public class WurmObjectsFactory {
             }
         });
         ReflectionUtil.<Map<Long, Bank>>getPrivateField(null, Banks.class.getDeclaredField("banks")).clear();
+        Kingdoms.createBasicKingdoms();
 
         Server.caveMesh = mock(MeshIO.class);
         Server.surfaceMesh = mock(MeshIO.class);
@@ -252,9 +267,9 @@ public class WurmObjectsFactory {
             ServerPackageFactory.addPlayer(player);
             creatures.put(player.getWurmId(), player);
             player.currentTile = Zones.getOrCreateTile(512, 512, true);
-            FieldSetter.setField(player, Creature.class.getDeclaredField("status"), new FakeCreatureStatus(player));
+            ReflectionUtil.setPrivateField(player, Creature.class.getDeclaredField("status"), new FakeCreatureStatus(player));
             player.getBody().createBodyParts();
-            FieldSetter.setField(player, Player.class.getDeclaredField("saveFile"), new FakePlayerInfo(player.getName()));
+            ReflectionUtil.setPrivateField(player, Player.class.getDeclaredField("saveFile"), new FakePlayerInfo(player.getWurmId(), player.getName()));
             player.createPossessions();
             attachFakeCommunicator(player);
             return player;
@@ -335,16 +350,16 @@ public class WurmObjectsFactory {
             item.setTemplateId(templateId);
             item.setMaterial(ItemTemplateFactory.getInstance().getTemplate(templateId).getMaterial());
             item.setQualityLevel(1.0f);
-            FieldSetter.setField(item, Item.class.getDeclaredField("weight"), ItemTemplateFactory.getInstance().getTemplate(templateId).getWeightGrams());
+            ReflectionUtil.setPrivateField(item, Item.class.getDeclaredField("weight"), ItemTemplateFactory.getInstance().getTemplate(templateId).getWeightGrams());
             item.setPosXYZRotation(512, 512, 1, 90);
 
             if (item.canHaveInscription()) {
-                FieldSetter.setField(item, Item.class.getDeclaredField("inscription"), new InscriptionData(item.getWurmId(), "", "", 0));
+                ReflectionUtil.setPrivateField(item, Item.class.getDeclaredField("inscription"), new InscriptionData(item.getWurmId(), "", "", 0));
             }
 
             items.put(item.getWurmId(), item);
             Items.putItem(item);
-        } catch (NoSuchFieldException | NoSuchTemplateException e) {
+        } catch (NoSuchFieldException | NoSuchTemplateException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
