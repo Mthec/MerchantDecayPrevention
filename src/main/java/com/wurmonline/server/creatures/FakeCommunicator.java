@@ -1,10 +1,13 @@
 package com.wurmonline.server.creatures;
 
+import com.wurmonline.communication.SocketConnection;
 import com.wurmonline.server.bodys.Wound;
 import com.wurmonline.server.items.Item;
 import com.wurmonline.server.players.Player;
 import com.wurmonline.server.sounds.Sound;
+import org.gotti.wurmunlimited.modloader.ReflectionUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +44,12 @@ public class FakeCommunicator extends Communicator {
         me = creature;
         if (me instanceof Player)
             player = (Player)me;
+
+        try {
+            ReflectionUtil.setPrivateField(this, Communicator.class.getDeclaredField("connection"), new SocketConnection("", -1, 10));
+        } catch (IllegalAccessException | NoSuchFieldException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String[] getMessages() {

@@ -38,6 +38,7 @@ import static org.mockito.Mockito.*;
 public class WurmObjectsFactory {
     private static final List<Character> alphabet = IntStream.rangeClosed('a', 'z').mapToObj(c -> (char)c).collect(Collectors.toList());
     private static final List<Iterator<Character>> chars = new ArrayList<>();
+    private static final List<Character> nextName = new ArrayList<>();
     protected Map<Long, Creature> creatures = new HashMap<>(10);
     private final Map<Creature, FakeCommunicator> communicators = new HashMap<>(10);
     protected Map<Creature, FakeShop> shops = new HashMap<>(4);
@@ -201,23 +202,29 @@ public class WurmObjectsFactory {
     protected static String randomName(String baseName) {
         if (chars.isEmpty()) {
             chars.add(alphabet.iterator());
-        }
+            nextName.add(chars.get(0).next());
+        } else {
+            int size = chars.size();
+            for (int i = 0; i < size; i++) {
+                if (nextName.size() < i + 1) {
+                    nextName.add(chars.get(i).next());
+                } else if (nextName.get(i) == 'z') {
+                    Iterator<Character> iterator = alphabet.iterator();
+                    chars.set(i, iterator);
+                    nextName.set(i, iterator.next());
 
-        int idx = 0;
-        Iterator<Character> toAdd = null;
-        List<String> characters = new ArrayList<>();
-        while (idx != chars.size()) {
-            Iterator<Character> iterator = chars.get(idx++);
-            if (iterator.hasNext()) {
-                characters.add(iterator.next().toString());
-            } else if (idx == chars.size()) {
-                chars.add(alphabet.iterator());
-            } else {
-                chars.set(idx, alphabet.iterator());
+                    if (chars.size() < i + 2) {
+                        chars.add(alphabet.iterator());
+                        ++size;
+                    }
+                } else {
+                    nextName.set(i, chars.get(i).next());
+                    break;
+                }
             }
         }
 
-        return baseName + String.join("", characters);
+        return baseName + nextName.stream().map(Object::toString).collect(Collectors.joining());
     }
 
     public void addCreature(Creature creature) {

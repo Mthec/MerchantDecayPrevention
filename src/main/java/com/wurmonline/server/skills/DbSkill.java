@@ -47,4 +47,8 @@ public class DbSkill extends Skill {
     static byte[][] loadSkillChances() throws Exception {
         return null;
     }
+
+    static void saveSkillChances(byte[][] chances) {
+
+    }
 }
