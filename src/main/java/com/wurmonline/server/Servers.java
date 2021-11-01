@@ -2,6 +2,7 @@ package com.wurmonline.server;
 
 import com.wurmonline.server.economy.MonetaryConstants;
 import com.wurmonline.server.webinterface.WebCommand;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +18,15 @@ public class Servers {
     private static boolean isPVPServer = false;
     private static boolean isEpicServer = false;
     private static boolean isHomeServer = true;
-    private static final boolean isChaosServer = false;
+    private static boolean isChaosServer = false;
     public static List<WebCommand> sentCommands = new ArrayList<>();
 
     static {
         localServer = mock(ServerEntry.class);
         when(localServer.isFreeDeeds()).thenReturn(false);
         when(localServer.getTraderMaxIrons()).thenReturn(MonetaryConstants.COIN_GOLD);
+        when(localServer.isChaosServer()).thenAnswer((Answer<Boolean>)i -> isThisAChaosServer());
+        when(localServer.isChallengeOrEpicServer()).thenAnswer((Answer<Boolean>)i -> isThisAEpicServer());
         loginServer = localServer;
         setHostileServer(false);
     }
