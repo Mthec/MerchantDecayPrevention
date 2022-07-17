@@ -43,4 +43,8 @@ public class SpellEffect {
             this.isItem = true;
         }
     }
+
+    public void delete() {
+        // Ignored.
+    }
 }
