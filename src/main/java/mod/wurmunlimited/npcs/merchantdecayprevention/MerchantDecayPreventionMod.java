@@ -57,4 +57,13 @@ public class MerchantDecayPreventionMod implements WurmServerMod, Configurable, 
             return method.invoke(o, args);
         }
     }
+
+    Object pollCoolingItems(Object o, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        Creature creature = (Creature)args[0];
+        if (!creature.isNpcTrader() || allowCooling) {
+            return method.invoke(o, args);
+        }
+
+        return null;
+    }
 }

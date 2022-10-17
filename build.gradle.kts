@@ -3,19 +3,19 @@ plugins {
 }
 
 group = "mod.wurmunlimited.npcs.merchantdecayprevention"
-version = "0.1"
+version = "0.1.1"
 val shortName = "merchantdecayprevention"
-val wurmServerFolder = "E:/Steam/steamapps/common/Wurm Unlimited/WurmServerLauncher/"
+val wurmServerFolder = "F:/Steam/steamapps/common/Wurm Unlimited/WurmServerLauncher/"
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
     testImplementation(project(":WurmTestingHelper"))
-    implementation(fileTree(wurmServerFolder) { include("server.jar") })
-    implementation(fileTree(wurmServerFolder + "lib/") { include("ServerLauncher-0.43.jar",
-            "sqlite-jdbc-3.8.11.2.jar", "WurmUnlimitedCommon-1.9.2.7.jar") })
+    implementation("com.wurmonline:server:1.9")
+    implementation("org.gotti.wurmunlimited:server-modlauncher:0.45")
 }
 
 tasks.test {
