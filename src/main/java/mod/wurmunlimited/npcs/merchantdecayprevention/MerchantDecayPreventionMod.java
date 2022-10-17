@@ -29,6 +29,10 @@ public class MerchantDecayPreventionMod implements WurmServerMod, Configurable, 
                 "pollOwned",
                 "(Lcom/wurmonline/server/creatures/Creature;)Z",
                 () -> this::pollOwned);
+        manager.registerHook("com.wurmonline.server.items.Item",
+                "pollCoolingItems",
+                "(Lcom/wurmonline/server/creatures/Creature;J)V",
+                () -> this::pollCoolingItems);
     }
 
     Object pollOwned(Object o, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
